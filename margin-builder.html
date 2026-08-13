@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Margin Calc">
+<link rel="apple-touch-icon" href="https://pub-8f4e8ec913b14abe86e5a3cb912c4b6a.r2.dev/sr-icon.png">
+<title>SR Margin Calc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Text:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #14181C;
+    color: #EDEAE4;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body { padding: 0 0 90px; max-width: 560px; margin: 0 auto; }
+  .topbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 14px 12px;
+    border-bottom: 1px solid #232B32;
+  }
+  .topbar img { width: 34px; height: 34px; border-radius: 7px; flex-shrink: 0; }
+  .topbar .brandname { font-family: 'Big Shoulders Text', sans-serif; font-weight: 800; font-size: 16px; color: #F7F4EE; letter-spacing: 0.01em; line-height: 1; }
+  .topbar .brandsub { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #E8A33D; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
+  .content { padding: 18px 14px 0; }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #E8A33D;
+    margin: 0 0 4px;
+  }
+  h1 {
+    font-family: 'Big Shoulders Text', sans-serif;
+    font-weight: 800;
+    font-size: 30px;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+    color: #F7F4EE;
+  }
+  .sub { color: #8A9099; font-size: 13.5px; margin: 0 0 18px; line-height: 1.4; }
+  .panel {
+    background: #1B2126;
+    border: 1px solid #2A323A;
+    border-radius: 10px;
+    padding: 16px 16px 14px;
+    margin-bottom: 14px;
+  }
+  .panel-title {
+    font-family: 'Big Shoulders Text', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: 0.01em;
+    color: #E8A33D;
+    text-transform: uppercase;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #232B32;
+  }
+  .row:last-child { border-bottom: none; }
+  .row label {
+    font-size: 14px;
+    color: #C7CBD1;
+    flex: 1;
+  }
+  .row small {
+    display: block;
+    color: #6B7178;
+    font-size: 11px;
+    margin-top: 1px;
+  }
+  .inp-wrap {
+    display: flex;
+    align-items: center;
+    background: #14181C;
+    border: 1px solid #333C44;
+    border-radius: 7px;
+    padding: 0 8px;
+    min-width: 108px;
+  }
+  .inp-wrap .prefix { color: #6B7178; font-family: 'IBM Plex Mono', monospace; font-size: 14px; }
+  .inp-wrap input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #F7F4EE;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 9px 4px;
+    width: 100%;
+    text-align: right;
+  }
+  .inp-wrap.pct { min-width: 74px; }
+  .inp-wrap .suffix { color: #6B7178; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+  .inp-wrap.text input { text-align: left; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 14px; }
+  .inp-wrap.text { min-width: 140px; }
+  .toggle { display: flex; align-items: center; gap: 8px; }
+  .switch {
+    width: 40px; height: 23px;
+    background: #333C44;
+    border-radius: 20px;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .switch.on { background: #E8A33D; }
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 2.5px; left: 2.5px;
+    width: 18px; height: 18px;
+    background: #14181C;
+    border-radius: 50%;
+    transition: left 0.15s;
+  }
+  .switch.on::after { left: 19.5px; background: #1B2126; }
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    background: #333C44;
+    border-radius: 3px;
+    outline: none;
+    margin: 6px 0 2px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #E8A33D;
+    cursor: pointer;
+    border: 3px solid #14181C;
+  }
+  .slider-row { padding: 10px 0; border-bottom: 1px solid #232B32; }
+  .slider-row:last-child { border-bottom: none; }
+  .slider-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 14px; color: #C7CBD1; margin-bottom: 2px;
+  }
+  .slider-head b { font-family: 'IBM Plex Mono', monospace; color: #E8A33D; font-size: 14px; }
+  .alloc-remainder { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #6B7178; padding-top: 6px; }
+  .alloc-remainder.warn { color: #E85D3D; }
+  .ledger .row { padding: 9px 0; }
+  .ledger .row .name { color: #C7CBD1; font-size: 14px; }
+  .ledger .row .amt {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px; font-weight: 600; color: #F7F4EE;
+    text-align: right; min-width: 90px;
+  }
+  .ledger .row.total { border-top: 2px solid #E8A33D; margin-top: 4px; padding-top: 12px; }
+  .ledger .row.total .name {
+    font-family: 'Big Shoulders Text', sans-serif; font-weight: 700; font-size: 17px;
+    color: #F7F4EE; text-transform: uppercase;
+  }
+  .ledger .row.total .amt { font-size: 20px; color: #E8A33D; }
+  .match-flag { font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-align: right; margin-top: -2px; margin-bottom: 6px; }
+  .match-flag.ok { color: #5DBE7A; }
+  .match-flag.off { color: #E85D3D; }
+  .hide-panel { background: #211A12; border: 1px solid #4A3820; }
+  .hide-panel .panel-title { color: #E8A33D; }
+  .hide-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13.5px; color: #C7A46B; }
+  .hide-row b { font-family: 'IBM Plex Mono', monospace; color: #E8A33D; }
+  .foot-note { font-size: 11.5px; color: #5B6167; line-height: 1.5; margin: 18px 0; padding: 0 4px; }
+  button.reset {
+    width: 100%; background: transparent; border: 1px solid #333C44; color: #8A9099;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; padding: 10px; border-radius: 7px; margin-top: 8px;
+  }
+  #cardView { display: none; padding: 18px 14px 0; }
+  .card {
+    background: #1B2126;
+    border: 1px solid #2A323A;
+    border-radius: 12px;
+    padding: 18px 18px 14px;
+  }
+  .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .card-head img { width: 30px; height: 30px; border-radius: 6px; }
+  .card-head-text { flex: 1; }
+  .card-head-text .cname { font-family: 'Big Shoulders Text', sans-serif; font-weight: 800; font-size: 17px; color: #F7F4EE; line-height: 1.1; }
+  .card-head-text .cmeta { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8A9099; margin-top: 2px; }
+  .job-fields { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .job-fields .inp-wrap.text { width: 100%; min-width: 0; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .stat-box { border-radius: 8px; padding: 10px 12px; }
+  .stat-box .stat-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.85; }
+  .stat-box .stat-val { font-family: 'Big Shoulders Text', sans-serif; font-weight: 800; font-size: 21px; margin-top: 2px; }
+  .stat-box.amber { background: #3A2A12; color: #F0B85E; }
+  .stat-box.slate { background: #21282F; color: #C7CBD1; }
+  .stat-box.green { background: #16281C; color: #6FCB8C; }
+  .stat-box.rose  { background: #2E1A17; color: #E8896F; }
+  .card-ledger .row { padding: 6px 0; }
+  .card-ledger .row .name { font-size: 12.5px; color: #9BA1A8; }
+  .card-ledger .row .amt { font-size: 13px; color: #EDEAE4; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
+  .card-ledger .row.total { border-top: 1px solid #333C44; margin-top: 4px; padding-top: 10px; }
+  .card-ledger .row.total .name { font-family: 'Big Shoulders Text', sans-serif; font-weight: 700; font-size: 14px; color: #F7F4EE; text-transform: uppercase; }
+  .card-ledger .row.total .amt { font-size: 16px; color: #E8A33D; }
+  .card-footer {
+    margin-top: 16px; padding-top: 12px; border-top: 1px solid #2A323A;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .card-footer .made { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5B6167; }
+  .card-footer .made b { color: #E8A33D; }
+  .screenshot-hint { text-align: center; font-size: 11.5px; color: #5B6167; margin: 12px 0 20px; }
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #1B2126; border-top: 1px solid #2A323A;
+    display: flex; max-width: 560px; margin: 0 auto;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .tabbtn {
+    flex: 1; text-align: center; padding: 12px 0 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: #6B7178; cursor: pointer; border-top: 2px solid transparent;
+  }
+  .tabbtn.active { color: #E8A33D; border-top: 2px solid #E8A33D; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <img src="https://pub-8f4e8ec913b14abe86e5a3cb912c4b6a.r2.dev/sr-icon.png" alt="ScopeReady">
+    <div>
+      <div class="brandname">ScopeReady</div>
+      <div class="brandsub">Margin Builder</div>
+    </div>
+  </div>
+  <div id="calcView" class="content">
+    <p class="eyebrow">Margin Builder</p>
+    <h1>Hide the profit,<br>not the math.</h1>
+    <p class="sub">Enter the real job costs and the price you're quoting. TOC absorbs whatever's left over — no more erasing numbers to make it tie out.</p>
+    <div class="panel">
+      <div class="panel-title">Real Costs</div>
+      <div class="row"><label>Material</label>
+        <div class="inp-wrap"><span class="prefix">$</span><input type="number" id="material" value="300" inputmode="decimal"></div>
+      </div>
+      <div class="row"><label>Tax rate<small>Changes by city</small></label>
+        <div class="inp-wrap pct"><input type="number" id="taxRate" value="9.75" inputmode="decimal" step="0.01"><span class="suffix">%</span></div>
+      </div>
+      <div class="row"><label>Tech labor</label>
+        <div class="inp-wrap"><span class="prefix">$</span><input type="number" id="labor" value="2960" inputmode="decimal"></div>
+      </div>
+      <div class="row"><label>Helper</label>
+        <div class="inp-wrap"><span class="prefix">$</span><input type="number" id="helper" value="0" inputmode="decimal"></div>
+      </div>
+      <div class="row"><label>TOC<small>Permits / catch-all</small></label>
+        <div class="inp-wrap"><span class="prefix">$</span><input type="number" id="toc" value="50" inputmode="decimal"></div>
+      </div>
+      <div class="row">
+        <div class="toggle"><div class="switch" id="equipToggle"></div><label>Equipment<small>Press / thread on invoice</small></label></div>
+        <div class="inp-wrap" id="equipInpWrap" style="opacity:0.35;pointer-events:none;"><span class="prefix">$</span><input type="number" id="equip" value="0" inputmode="decimal"></div>
+      </div>
+      <div class="row"><label>Sub</label>
+        <div class="inp-wrap"><span class="prefix">$</span><input type="number" id="sub" value="0" inputmode="decimal"></div>
+      </div>
+      <div class="row"><label>Misc<small>Tarps, gloves, other</small></label>
+        <div class="inp-wrap"><span class="prefix">$</span><input type="number" id="misc" value="0" inputmode="decimal"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Quoted Price</div>
+      <div class="row"><label>Total to invoice</label>
+        <div class="inp-wrap"><span class="prefix">$</span><input type="number" id="target" value="4800" inputmode="decimal"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Spread The Profit</div>
+      <div class="slider-row"><div class="slider-head">Material <b id="matPctLabel">30%</b></div><input type="range" id="matPct" min="0" max="100" value="30"></div>
+      <div class="slider-row"><div class="slider-head">Labor <b id="laborPctLabel">45%</b></div><input type="range" id="laborPct" min="0" max="100" value="45"></div>
+      <div class="slider-row" id="equipPctRow" style="opacity:0.35;pointer-events:none;"><div class="slider-head">Equipment <b id="equipPctLabel">0%</b></div><input type="range" id="equipPct" min="0" max="100" value="0"></div>
+      <div class="alloc-remainder" id="allocRemainder">TOC absorbs the rest — 25%</div>
+    </div>
+    <div class="panel ledger">
+      <div class="panel-title">Invoice Breakdown</div>
+      <div class="row"><span class="name">Material</span><span class="amt" id="outMaterial">$0.00</span></div>
+      <div class="row"><span class="name">Tax</span><span class="amt" id="outTax">$0.00</span></div>
+      <div class="row"><span class="name">Tech labor</span><span class="amt" id="outLabor">$0.00</span></div>
+      <div class="row"><span class="name">Helper</span><span class="amt" id="outHelper">$0.00</span></div>
+      <div class="row"><span class="name">TOC</span><span class="amt" id="outToc">$0.00</span></div>
+      <div class="row"><span class="name">Equipment</span><span class="amt" id="outEquip">$0.00
