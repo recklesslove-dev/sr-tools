@@ -22,7 +22,7 @@
   body { padding: 0 0 90px; max-width: 560px; margin: 0 auto; }
   .topbar {
     display: flex; align-items: center; gap: 10px;
-    padding: 16px 14px 12px;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 14px 12px;
     border-bottom: 1px solid #232B32;
   }
   .topbar img { width: 34px; height: 34px; border-radius: 7px; flex-shrink: 0; }
@@ -189,24 +189,26 @@
     background: #1B2126;
     border: 1px solid #2A323A;
     border-radius: 12px;
-    padding: 18px 18px 14px;
+    padding: 14px 16px 10px;
   }
-  .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
   .card-head img { width: 30px; height: 30px; border-radius: 6px; }
   .card-head-text { flex: 1; }
   .card-head-text .cname { font-family: 'Big Shoulders Text', sans-serif; font-weight: 800; font-size: 17px; color: #F7F4EE; line-height: 1.1; }
   .card-head-text .cmeta { font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; color: #8A9099; margin-top: 2px; }
-  .job-fields { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+  .job-fields { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
   .job-fields .inp-wrap.text { width: 100%; min-width: 0; }
-  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-  .stat-box { border-radius: 8px; padding: 10px 12px; }
+  .job-fields .job-row2 { display: flex; gap: 6px; }
+  .job-fields .job-row2 .inp-wrap.text { flex: 1; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+  .stat-box { border-radius: 8px; padding: 8px 10px; }
   .stat-box .stat-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.85; }
   .stat-box .stat-val { font-family: 'Big Shoulders Text', sans-serif; font-weight: 800; font-size: 21px; margin-top: 2px; }
   .stat-box.amber { background: #3A2A12; color: #F0B85E; }
   .stat-box.slate { background: #21282F; color: #C7CBD1; }
   .stat-box.green { background: #16281C; color: #6FCB8C; }
   .stat-box.rose  { background: #2E1A17; color: #E8896F; }
-  .card-ledger .row { padding: 6px 0; }
+  .card-ledger .row { padding: 4px 0; }
   .card-ledger .row .name { font-size: 12.5px; color: #9BA1A8; }
   .card-ledger .row .amt { font-size: 13px; color: #EDEAE4; font-family: 'IBM Plex Mono', monospace; font-weight: 600; }
   .card-ledger .row.total { border-top: 1px solid #333C44; margin-top: 4px; padding-top: 10px; }
@@ -218,7 +220,7 @@
   }
   .card-footer .made { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: #5B6167; }
   .card-footer .made b { color: #E8A33D; }
-  .screenshot-hint { text-align: center; font-size: 11.5px; color: #5B6167; margin: 12px 0 20px; }
+  .screenshot-hint { text-align: center; font-size: 11.5px; color: #5B6167; margin: 8px 0 14px; }
   .tabbar {
     position: fixed; bottom: 0; left: 0; right: 0;
     background: #1B2126; border-top: 1px solid #2A323A;
@@ -314,8 +316,10 @@
   <div id="cardView">
     <div class="job-fields">
       <div class="inp-wrap text"><input type="text" id="cCustomer" placeholder="Customer / Job name" value="Beach Cities"></div>
-      <div class="inp-wrap text"><input type="text" id="cDate" placeholder="Date" value="08-12-26"></div>
-      <div class="inp-wrap text"><input type="text" id="cInvoice" placeholder="Invoice #" value="45643"></div>
+      <div class="job-row2">
+        <div class="inp-wrap text"><input type="text" id="cDate" placeholder="Date" value="08-12-26"></div>
+        <div class="inp-wrap text"><input type="text" id="cInvoice" placeholder="Invoice #" value="45643"></div>
+      </div>
     </div>
     <div class="card">
       <div class="card-head">
