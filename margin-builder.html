@@ -293,4 +293,199 @@
       <div class="row"><span class="name">Tech labor</span><span class="amt" id="outLabor">$0.00</span></div>
       <div class="row"><span class="name">Helper</span><span class="amt" id="outHelper">$0.00</span></div>
       <div class="row"><span class="name">TOC</span><span class="amt" id="outToc">$0.00</span></div>
-      <div class="row"><span class="name">Equipment</span><span class="amt" id="outEquip">$0.00
+      <div class="row"><span class="name">Equipment</span><span class="amt" id="outEquip">$0.00</span></div>
+      <div class="row"><span class="name">Sub</span><span class="amt" id="outSub">$0.00</span></div>
+      <div class="row"><span class="name">Misc</span><span class="amt" id="outMisc">$0.00</span></div>
+      <div class="row total"><span class="name">Total</span><span class="amt" id="outTotal">$0.00</span></div>
+      <div class="match-flag ok" id="matchFlag">matches quoted price</div>
+    </div>
+    <div class="panel hide-panel">
+      <div class="panel-title">Buried In There</div>
+      <div class="hide-row"><span>Real subtotal (cost + tax)</span><b id="hideReal">$0.00</b></div>
+      <div class="hide-row"><span>Hidden profit</span><b id="hideProfit">$0.00</b></div>
+      <div class="hide-row"><span>→ into Material</span><b id="hideMat">$0.00</b></div>
+      <div class="hide-row"><span>→ into Labor</span><b id="hideLabor">$0.00</b></div>
+      <div class="hide-row"><span>→ into Equipment</span><b id="hideEquip">$0.00</b></div>
+      <div class="hide-row"><span>→ into TOC (rest + tax makeup)</span><b id="hideToc">$0.00</b></div>
+    </div>
+    <button class="reset" id="resetBtn">RESET TO DEFAULTS</button>
+    <p class="foot-note">Tax is recalculated on the padded material, not the real material — TOC quietly covers that extra tax too, so the total always lands exactly on the quoted price.</p>
+  </div>
+  <div id="cardView">
+    <div class="job-fields">
+      <div class="inp-wrap text"><input type="text" id="cCustomer" placeholder="Customer / Job name" value="Beach Cities"></div>
+      <div class="inp-wrap text"><input type="text" id="cDate" placeholder="Date" value="08-12-26"></div>
+      <div class="inp-wrap text"><input type="text" id="cInvoice" placeholder="Invoice #" value="45643"></div>
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <img src="https://pub-8f4e8ec913b14abe86e5a3cb912c4b6a.r2.dev/sr-icon.png" alt="ScopeReady">
+        <div class="card-head-text">
+          <div class="cname" id="cardCustomer">Beach Cities</div>
+          <div class="cmeta"><span id="cardDate">08-12-26</span> · INV <span id="cardInvoice">45643</span></div>
+        </div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-box amber"><div class="stat-label">Quoted Total</div><div class="stat-val" id="cardTarget">$0.00</div></div>
+        <div class="stat-box slate"><div class="stat-label">Real Cost</div><div class="stat-val" id="cardReal">$0.00</div></div>
+        <div class="stat-box green"><div class="stat-label">Hidden Profit</div><div class="stat-val" id="cardProfit">$0.00</div></div>
+        <div class="stat-box rose"><div class="stat-label">Into TOC</div><div class="stat-val" id="cardTocPortion">$0.00</div></div>
+      </div>
+      <div class="card-ledger ledger">
+        <div class="row"><span class="name">Material</span><span class="amt" id="cOutMaterial">$0.00</span></div>
+        <div class="row"><span class="name">Tax</span><span class="amt" id="cOutTax">$0.00</span></div>
+        <div class="row"><span class="name">Tech labor</span><span class="amt" id="cOutLabor">$0.00</span></div>
+        <div class="row"><span class="name">Helper</span><span class="amt" id="cOutHelper">$0.00</span></div>
+        <div class="row"><span class="name">TOC</span><span class="amt" id="cOutToc">$0.00</span></div>
+        <div class="row"><span class="name">Equipment</span><span class="amt" id="cOutEquip">$0.00</span></div>
+        <div class="row"><span class="name">Sub</span><span class="amt" id="cOutSub">$0.00</span></div>
+        <div class="row"><span class="name">Misc</span><span class="amt" id="cOutMisc">$0.00</span></div>
+        <div class="row total"><span class="name">Total</span><span class="amt" id="cOutTotal">$0.00</span></div>
+      </div>
+      <div class="card-footer">
+        <span class="made">Created by <b>Freddy Vidaurri</b> — ScopeReady</span>
+      </div>
+    </div>
+    <p class="screenshot-hint">Screenshot this card to save or send.</p>
+  </div>
+  <div class="tabbar">
+    <div class="tabbtn active" id="tabCalcBtn">Calc</div>
+    <div class="tabbtn" id="tabCardBtn">Card</div>
+  </div>
+<script>
+const $ = id => document.getElementById(id);
+const fmt = n => '$' + n.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const ids = ['material','taxRate','labor','helper','toc','equip','sub','misc','target'];
+let equipOn = false;
+let lastCalc = {};
+function clampAlloc() {
+  let mat = parseFloat($('matPct').value) || 0;
+  let lab = parseFloat($('laborPct').value) || 0;
+  let eq = equipOn ? (parseFloat($('equipPct').value) || 0) : 0;
+  if (mat + lab + eq > 100) {
+    const scale = 100 / (mat + lab + eq);
+    mat = Math.round(mat * scale);
+    lab = Math.round(lab * scale);
+    eq = Math.round(eq * scale);
+    $('matPct').value = mat;
+    $('laborPct').value = lab;
+    if (equipOn) $('equipPct').value = eq;
+  }
+  return {mat, lab, eq};
+}
+function calc() {
+  const material = parseFloat($('material').value) || 0;
+  const taxRate = (parseFloat($('taxRate').value) || 0) / 100;
+  const labor = parseFloat($('labor').value) || 0;
+  const helper = parseFloat($('helper').value) || 0;
+  const toc = parseFloat($('toc').value) || 0;
+  const equip = equipOn ? (parseFloat($('equip').value) || 0) : 0;
+  const sub = parseFloat($('sub').value) || 0;
+  const misc = parseFloat($('misc').value) || 0;
+  const target = parseFloat($('target').value) || 0;
+  const realTax = material * taxRate;
+  const realSubtotal = material + labor + helper + toc + equip + sub + misc + realTax;
+  const profit = target - realSubtotal;
+  const {mat: matPct, lab: laborPct, eq: equipPct} = clampAlloc();
+  const matFrac = matPct / 100, laborFrac = laborPct / 100, equipFrac = equipPct / 100;
+  const tocFrac = Math.max(0, 1 - matFrac - laborFrac - equipFrac);
+  const matPortion = profit * matFrac;
+  const laborPortion = profit * laborFrac;
+  const equipPortion = profit * equipFrac;
+  const tocPortion = (profit * tocFrac) - (taxRate * matPortion);
+  const adjMaterial = material + matPortion;
+  const adjLabor = labor + laborPortion;
+  const adjToc = toc + tocPortion;
+  const adjEquip = equip + equipPortion;
+  const adjTax = adjMaterial * taxRate;
+  const total = adjMaterial + adjTax + adjLabor + helper + adjToc + adjEquip + sub + misc;
+  $('outMaterial').textContent = fmt(adjMaterial);
+  $('outTax').textContent = fmt(adjTax);
+  $('outLabor').textContent = fmt(adjLabor);
+  $('outHelper').textContent = fmt(helper);
+  $('outToc').textContent = fmt(adjToc);
+  $('outEquip').textContent = fmt(adjEquip);
+  $('outSub').textContent = fmt(sub);
+  $('outMisc').textContent = fmt(misc);
+  $('outTotal').textContent = fmt(total);
+  const diff = total - target;
+  const flag = $('matchFlag');
+  if (Math.abs(diff) < 0.02) { flag.textContent = 'matches quoted price'; flag.className = 'match-flag ok'; }
+  else { flag.textContent = (diff > 0 ? '+' : '') + fmt(diff) + ' off quoted price'; flag.className = 'match-flag off'; }
+  $('hideReal').textContent = fmt(realSubtotal);
+  $('hideProfit').textContent = fmt(profit);
+  $('hideMat').textContent = fmt(matPortion);
+  $('hideLabor').textContent = fmt(laborPortion);
+  $('hideEquip').textContent = fmt(equipPortion);
+  $('hideToc').textContent = fmt(tocPortion);
+  $('matPctLabel').textContent = matPct + '%';
+  $('laborPctLabel').textContent = laborPct + '%';
+  $('equipPctLabel').textContent = equipPct + '%';
+  const remainderPct = Math.round(tocFrac * 100);
+  const remEl = $('allocRemainder');
+  if (tocPortion < 0) { remEl.textContent = 'TOC would go negative — lower an allocation %'; remEl.className = 'alloc-remainder warn'; }
+  else { remEl.textContent = 'TOC absorbs the rest — ' + remainderPct + '%'; remEl.className = 'alloc-remainder'; }
+  lastCalc = {adjMaterial, adjTax, adjLabor, helper, adjToc, adjEquip, sub, misc, total, realSubtotal, profit, tocPortion, target};
+  syncCard();
+}
+function syncCard() {
+  const c = lastCalc;
+  $('cOutMaterial').textContent = fmt(c.adjMaterial || 0);
+  $('cOutTax').textContent = fmt(c.adjTax || 0);
+  $('cOutLabor').textContent = fmt(c.adjLabor || 0);
+  $('cOutHelper').textContent = fmt(c.helper || 0);
+  $('cOutToc').textContent = fmt(c.adjToc || 0);
+  $('cOutEquip').textContent = fmt(c.adjEquip || 0);
+  $('cOutSub').textContent = fmt(c.sub || 0);
+  $('cOutMisc').textContent = fmt(c.misc || 0);
+  $('cOutTotal').textContent = fmt(c.total || 0);
+  $('cardTarget').textContent = fmt(c.target || 0);
+  $('cardReal').textContent = fmt(c.realSubtotal || 0);
+  $('cardProfit').textContent = fmt(c.profit || 0);
+  $('cardTocPortion').textContent = fmt(c.tocPortion || 0);
+}
+ids.forEach(id => $(id).addEventListener('input', calc));
+['matPct','laborPct','equipPct'].forEach(id => $(id).addEventListener('input', calc));
+$('equipToggle').addEventListener('click', () => {
+  equipOn = !equipOn;
+  $('equipToggle').classList.toggle('on', equipOn);
+  $('equipInpWrap').style.opacity = equipOn ? '1' : '0.35';
+  $('equipInpWrap').style.pointerEvents = equipOn ? 'auto' : 'none';
+  $('equipPctRow').style.opacity = equipOn ? '1' : '0.35';
+  $('equipPctRow').style.pointerEvents = equipOn ? 'auto' : 'none';
+  if (!equipOn) { $('equip').value = 0; $('equipPct').value = 0; }
+  calc();
+});
+$('resetBtn').addEventListener('click', () => {
+  $('material').value = 300; $('taxRate').value = 9.75; $('labor').value = 2960; $('helper').value = 0;
+  $('toc').value = 50; $('equip').value = 0; $('sub').value = 0; $('misc').value = 0; $('target').value = 4800;
+  $('matPct').value = 30; $('laborPct').value = 45; $('equipPct').value = 0;
+  equipOn = false;
+  $('equipToggle').classList.remove('on');
+  $('equipInpWrap').style.opacity = '0.35'; $('equipInpWrap').style.pointerEvents = 'none';
+  $('equipPctRow').style.opacity = '0.35'; $('equipPctRow').style.pointerEvents = 'none';
+  calc();
+});
+['cCustomer','cDate','cInvoice'].forEach(id => {
+  $(id).addEventListener('input', () => {
+    $('cardCustomer').textContent = $('cCustomer').value || '—';
+    $('cardDate').textContent = $('cDate').value || '—';
+    $('cardInvoice').textContent = $('cInvoice').value || '—';
+  });
+});
+$('tabCalcBtn').addEventListener('click', () => {
+  $('calcView').style.display = 'block';
+  $('cardView').style.display = 'none';
+  $('tabCalcBtn').classList.add('active');
+  $('tabCardBtn').classList.remove('active');
+});
+$('tabCardBtn').addEventListener('click', () => {
+  $('calcView').style.display = 'none';
+  $('cardView').style.display = 'block';
+  $('tabCardBtn').classList.add('active');
+  $('tabCalcBtn').classList.remove('active');
+});
+calc();
+</script>
+</body>
+</html>
